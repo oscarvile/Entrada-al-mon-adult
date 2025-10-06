@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrada al món adult</title>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+        /* Rectangle superior */
+            padding: 0;
+            background: #f6f8fa;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        }
+        /* Rectangle superior */
+        .rectangulo-arriba {
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(90deg, #ec4e4e 60%, #ffb347 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+
+        /* Rectangle esquerre */
+        .rectangulo-izquierda {
+            width: 200px;
+            height: calc(100vh - 60px);
+            background: linear-gradient(180deg, #ec4e4e 70%, #ffb347 100%);
+            position: fixed;
+            left: 0;
+            top: 58px;
+            z-index: 5;
+            padding-top: 18px;
+            box-sizing: border-box;
+            border-top-right-radius: 18px;
+            border-bottom-right-radius: 18px;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.07);
+        }
+
+        /* Contingut principal */
+        .contingut-principal {
+            margin-left: 220px;
+            margin-top: 70px;
+            padding: 24px 24px 16px 24px;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(44,62,80,0.08);
+            min-height: 80vh;
+            max-width: 900px;
+            margin-bottom: 32px;
+        }
+
+        /* Menú dins del rectangle esquerre */
+        .dropdown {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: 100%;
+        }
+
+        .dropdown a {
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 22px 12px 44px;
+            display: flex;
+            align-items: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            font-size: 1.08rem;
+            position: relative;
+            transition: background 0.2s, transform 0.2s, color 0.2s;
+        }
+
+        .dropdown a.active, .dropdown a:focus {
+            background: #fff;
+            color: #b83030;
+            box-shadow: 0 2px 8px rgba(255,179,71,0.13);
+            font-weight: 700;
+            transform: scale(1.08);
+        }
+
+        .dropdown a:hover {
+            background: #ffb347;
+            color: #b83030;
+            transform: translateX(8px) scale(1.09);
+            box-shadow: 0 2px 12px rgba(255,179,71,0.16);
+        }
+
+        .dropdown a::before {
+            content: '';
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            margin-right: 14px;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .dropdown a[onclick*='inici']::before { background-image: url('https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3e0.svg'); }
+        .dropdown a[onclick*='economia']::before { background-image: url('https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4b0.svg'); }
+        .dropdown a[onclick*='tramits']::before { background-image: url('https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4c4.svg'); }
+        .dropdown a[onclick*='habitatge']::before { background-image: url('https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3e1.svg'); }
+        .dropdown a[onclick*='feina']::before { background-image: url('https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4bc.svg'); }
+        .dropdown a[onclick*='drets']::before { background-image: url('https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4dd.svg'); }
+        .dropdown a[onclick*='info-extra']::before { background-image: url('https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2795.svg'); } 
+        
+        /* Header i subtítol */
+        header h1 {
+            margin: 0 0 8px 0;
+            font-size: 2.2rem;
+            color: #b83030;
+            letter-spacing: 1px;
+        }
+
+        .subtitol {
+            font-size: 1.1rem;
+            color: #444;
+            margin-bottom: 18px;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 32px;
+            font-size: 1rem;
+            color: #b83030;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        /* Imatge del logo */
+        .logo {
+            width: 160px;
+            height: auto;
+            margin: 24px 0 18px 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(44,62,80,0.10);
+        }
+
+        /* Seccions */
+        .seccio {
+            display: none;
+        }
+
+        .seccio.active {
+            display: block;
+        }
+        /* Responsive y menú hamburguesa */
+    @media (max-width: 900px) {
+    .rectangulo-izquierda {
+        position: fixed;
+        left: -240px;
+        top: 62px;
+        width: 220px;
+        height: calc(100vh - 70px);
+        transition: left 0.3s;
+        z-index: 100;
+    }
+    .rectangulo-izquierda.open {
+        left: 0;
+    }
+    .contingut-principal {
+        margin-left: 0;
+        max-width: 98vw;
+        padding: 18px 6vw 18px 6vw;
+    }
+    .menu-toggle {
+        display: block;
+    }
+    }
+    @media (max-width: 600px) {
+        .contingut-principal {
+            padding: 8vw 2vw 8vw 2vw;
+        }
+        header h1 {
+            font-size: 1.5rem;
+        }
+    }
+    .menu-toggle {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 200;
+        width: 40px;
+        height: 40px;
+        background: #ec4e4e;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px #b8303040;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+    }
+    .menu-toggle span {
+        display: block;
+        width: 24px;
+        height: 3px;
+        background: #fff;
+        margin: 5px 0;
+        border-radius: 2px;
+        transition: 0.3s;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="rectangulo-arriba">
+        <p style="margin: 0; padding: 12px; text-align: center; color: white; font-weight: bold; font-size: 1rem;">
+            Si no saps on buscar el com fer-ho aquesta és la teva web
+        </p>
+    </div>
+
+    <div class="rectangulo-izquierda" id="sideMenu">
+        <nav class="dropdown">
+            <a onclick="mostrarSeccio('inici')" id="menu-inici">Inici</a>
+            <a onclick="mostrarSeccio('economia')" id="menu-economia">Economia</a>
+            <a onclick="mostrarSeccio('tramits')" id="menu-tramits">Tràmits</a>
+            <a onclick="mostrarSeccio('habitatge')" id="menu-habitatge">Habitatge</a>
+            <a onclick="mostrarSeccio('feina')" id="menu-feina">Feina</a>
+            <a onclick="mostrarSeccio('drets')" id="menu-drets">Drets i obligacions</a>
+            <a onclick="mostrarSeccio('info-extra')" id="menu-info-extra">Info Extra</a>
+        </nav>
+    </div>
+
+    <div class="contingut-principal">
+        <!-- Secció Inici -->
+        <div id="inici" class="seccio active">
+            <header>
+                <h1>Entrada al món adult</h1>
+                <p class="subtitol">
+                    En aquesta pàgina web trobareu tota la informació que us pot interessar:
+                    tràmits i com fer-los, els vostres drets com a ciutadans, com buscar pis, feina i molt més.
+                </p>
+                <img src="https://static.vecteezy.com/system/resources/previews/011/311/185/non_2x/to-logo-to-design-blue-and-red-to-letter-to-letter-logo-design-initial-letter-to-linked-circle-uppercase-monogram-logo-vector.jpg" alt="Logo" class="logo">
+            </header>
+            <section>
+                <h2>Explicació breu</h2>
+                <p>
+                    Aquesta pàgina web és una guia educativa dissenyada per ajudar els joves en el procés d’entrada al món adult. 
+                    Sovint, en aquesta etapa de la vida, molts nois i noies ens trobem davant de nous reptes i responsabilitats que poden resultar confusos: 
+                    gestionar els primers sous, entendre els tràmits administratius, buscar un lloc on viure o preparar-se per al mercat laboral. 
+                    Per aquest motiu, aquesta plataforma vol ser un punt de suport i orientació, oferint informació clara, pràctica i actualitzada sobre aquests temes.
+                </p>
+            </section>
+            <section>
+                <h2>Objectius principals</h2>
+                <ul>
+                    <li>Facilitar informació útil per a l’entrada al món adult.</li>
+                    <li>Oferir eines pràctiques per gestionar la vida quotidiana.</li>
+                    <li>Crear una plataforma educativa, clara i accessible per a tothom.</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Característiques</h2>
+                <ul>
+                    <li>Interfície senzilla i fàcil d’utilitzar.</li>
+                    <li>Informació organitzada per temes clars i útils.</li>
+                    <li>Disseny atractiu i adaptat a les necessitats dels joves.</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Futur</h2>
+                <article>
+                    <h3>Què volem aconseguir després</h3>
+                    <p>
+                        El nostre objectiu és continuar millorant aquesta plataforma per convertir-la en un recurs indispensable per als joves. 
+                        Volem afegir més continguts, eines interactives i recursos pràctics que ajudin a fer la transició al món adult més fàcil i accessible.
+                    </p>
+                </article>
+                <article>
+                    <h3>Millores i plans</h3>
+                    <ul>
+                        <li>Ampliar les seccions amb informació més detallada i actualitzada.</li>
+                        <li>Afegir funcionalitats com calculadores financeres i guies pas a pas.</li>
+                        <li>Crear una comunitat on els usuaris puguin compartir experiències i consells.</li>
+                    </ul>
+                </article>
+            </section>
+            <footer>
+                <p>&copy; 2025 Entrada al món adult · Web educativa</p>
+            </footer>
+        </div>
+
+        <!-- Secció Economia -->
+        <div id="economia" class="seccio">
+            <header>
+                <h1>Economia</h1>
+                <p class="subtitol">Aprèn a gestionar els teus diners, estalviar i molt més.</p>
+            </header>
+            <section>
+                <h2>Gestió de diners</h2>
+                <p>Aprèn a organitzar les teves despeses i ingressos per tenir un millor control econòmic.</p>
+            </section>
+            <section>
+                <h2>Estalvi</h2>
+                <p>Consells i estratègies per començar a estalviar de manera efectiva i planificar els teus objectius econòmics.</p>
+            </section>
+            <footer>
+                <p>© 2025 Economia. Tots els drets reservats.</p>
+            </footer>
+        </div>
+
+        <!-- Secció Tràmits -->
+        <div id="tramits" class="seccio">
+            <header>
+                <h1>Tràmits</h1>
+                <p class="subtitol">Aquí podràs afegir informació sobre tràmits.</p>
+            </header>
+            <footer>
+                <p>© 2025 Tràmits. Tots els drets reservats.</p>
+            </footer>
+        </div>
+
+        <!-- Secció Habitatge -->
+        <div id="habitatge" class="seccio">
+            <header>
+                <h1>Habitatge</h1>
+                <p class="subtitol">Aquí podràs afegir informació sobre habitatge.</p>
+            </header>
+            <footer>
+                <p>© 2025 Habitatge. Tots els drets reservats.</p>
+            </footer>
+        </div>
+
+        <!-- Secció Feina -->
+        <div id="feina" class="seccio">
+            <header>
+                <h1>Feina</h1>
+                <p class="subtitol">Aquí podràs afegir informació sobre feina.</p>
+            </header>
+            <footer>
+                <p>© 2025 Feina. Tots els drets reservats.</p>
+            </footer>
+        </div>
+
+    <!-- Secció Drets i obligacions -->
+        <div id="drets" class="seccio">
+            <header>
+                <h1>Drets i obligacions</h1>
+                <p class="subtitol">Aquí podràs afegir informació sobre els drets i obligacions.</p>
+            </header>
+            <footer>
+                <p>© 2025 Drets i obligacions. Tots els drets reservats.</p>
+            </footer>
+        </div>
+
+        <!-- Secció Info Extra -->
+        <div id="info-extra" class="seccio">
+            <header>
+                <h1>Info Extra</h1>
+            </header>
+            <section>
+                <h2>Història + motivació</h2>
+                <p>
+                    La idea d'aquesta pàgina va sorgir de la necessitat de tenir un recurs centralitzat per als joves que comencen a enfrontar-se 
+                    als reptes del món adult. Ens vam inspirar en les nostres pròpies experiències i en les dificultats que vam trobar en aquesta etapa.
+                </p>
+            </section>
+            <section>
+                <h2>Equip</h2>
+                <ul>
+                    <li>Tahis ___</li>
+                    <li>Oscar ___</li>
+                    <li>Izart ___</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Col·laboradors</h2>
+                <ul>
+                    <li>Ajuntament</li>
+                    <li>___</li>
+                    <li>___</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Casos d’ús reals</h2>
+                <p>
+                    Aquesta plataforma ha estat utilitzada per diversos joves per trobar feina, gestionar tràmits administratius i planificar el seu futur econòmic. 
+                    Els casos d’èxit inclouen històries de persones que han aconseguit independitzar-se gràcies a les eines i recursos proporcionats.
+                </p>
+            </section>
+            <footer>
+                <p>© 2025 Info Extra. Tots els drets reservats.</p>
+            </footer>
+        </div>
+
+    </div>
+
+    <script>
+    function mostrarSeccio(id) {
+        const seccions = document.querySelectorAll('.seccio');
+        seccions.forEach(sec => sec.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.dropdown a').forEach(a => a.classList.remove('active'));
+        const menuId = 'menu-' + id;
+        const menuItem = document.getElementById(menuId);
+        if (menuItem) menuItem.classList.add('active');
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('menu-inici').classList.add('active');
+    });
+    </script>
+</body>
+</html>
