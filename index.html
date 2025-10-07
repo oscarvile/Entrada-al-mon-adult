@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ca">
 
@@ -212,10 +213,15 @@
 </head>
 
 <body>
-    <div class="rectangulo-arriba">
+    <div class="rectangulo-arriba" style="display: flex; align-items: center; justify-content: space-between;">
         <p style="margin: 0; padding: 12px; text-align: center; color: white; font-weight: bold; font-size: 1rem;">
             Si no saps on buscar el com fer-ho aquesta és la teva web
         </p>
+        <div style="margin-right: 24px;">
+            <select id="apartatsDropdown" style="padding: 7px 14px; border-radius: 8px; border: none; font-size: 1rem;">
+                <option value="">Ves a un apartat...</option>
+            </select>
+        </div>
     </div>
 
     <div class="rectangulo-izquierda" id="sideMenu">
@@ -854,13 +860,6 @@
                     <li>___</li>
                 </ul>
             </section>
-            <section>
-                <h2>Casos d’ús reals</h2>
-                <p>
-                    Aquesta plataforma ha estat utilitzada per diversos joves per trobar feina, gestionar tràmits administratius i planificar el seu futur econòmic. 
-                    Els casos d’èxit inclouen històries de persones que han aconseguit independitzar-se gràcies a les eines i recursos proporcionats.
-                </p>
-            </section>
             <footer>
                 <p>© 2025 Info Extra. Tots els drets reservats.</p>
             </footer>
@@ -869,6 +868,46 @@
     </div>
 
     <script>
+    // Desplegable de apartats
+    function actualitzarDropdownApartats() {
+        const dropdown = document.getElementById('apartatsDropdown');
+        if (!dropdown) return;
+        dropdown.innerHTML = '<option value="">Ves a un apartat...</option>';
+        const seccioActiva = document.querySelector('.seccio.active');
+        if (!seccioActiva) return;
+        const titols = seccioActiva.querySelectorAll('h2');
+        titols.forEach(function(titol, idx) {
+            const txt = titol.textContent.trim();
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.textContent = txt;
+            dropdown.appendChild(opt);
+        });
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        actualitzarDropdownApartats();
+        document.querySelectorAll('.dropdown a').forEach(function(a) {
+            a.addEventListener('click', function() {
+                setTimeout(actualitzarDropdownApartats, 200);
+            });
+        });
+        const dropdown = document.getElementById('apartatsDropdown');
+        dropdown.addEventListener('change', function() {
+            const seccioActiva = document.querySelector('.seccio.active');
+            if (!seccioActiva) return;
+            const titols = seccioActiva.querySelectorAll('h2');
+            const idx = dropdown.value;
+            if (idx !== '' && titols[idx]) {
+                titols[idx].scrollIntoView({behavior: 'smooth', block: 'center'});
+                titols[idx].style.background = '#ffb347';
+                titols[idx].style.borderRadius = '8px';
+                setTimeout(function() {
+                    titols[idx].style.background = '';
+                    titols[idx].style.borderRadius = '';
+                }, 1800);
+            }
+        });
+    });
     function mostrarSeccio(id) {
         const seccions = document.querySelectorAll('.seccio');
         seccions.forEach(sec => sec.classList.remove('active'));
