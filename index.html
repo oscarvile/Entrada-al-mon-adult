@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ca">
 
@@ -208,6 +207,45 @@
         margin: 5px 0;
         border-radius: 2px;
         transition: 0.3s;
+    }
+
+    /* Afegit: estils per al navegador inferior (pager) */
+    .pager {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 20px;
+        padding: 12px;
+        border-radius: 12px;
+        background: linear-gradient(90deg, #fff, #fff);
+        box-shadow: 0 6px 18px rgba(44,62,80,0.06);
+    }
+    .pager .btn {
+        background: #ec4e4e;
+        color: #fff;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(184,48,48,0.18);
+        transition: transform .12s, opacity .12s;
+    }
+    .pager .btn:disabled {
+        opacity: 0.45;
+        cursor: default;
+        transform: none;
+    }
+    .pager .label {
+        font-size: 0.95rem;
+        color: #444;
+        font-weight: 600;
+    }
+    @media (max-width: 600px) {
+        .pager { gap: 8px; padding: 10px; }
+        .pager .label { font-size: 0.85rem; }
+        .pager .btn { padding: 8px 12px; }
     }
     </style>
 </head>
@@ -865,62 +903,129 @@
             </footer>
         </div>
 
+        <!-- Afegit: navegador inferior per canviar entre seccions -->
+        <div id="pager" class="pager" aria-hidden="false">
+            <button id="pager-prev" class="btn" aria-label="Secció anterior">◀ Anterior</button>
+            <div class="label" id="pager-label">Inici</div>
+            <button id="pager-next" class="btn" aria-label="Següent secció">Següent ▶</button>
+        </div>
     </div>
 
     <script>
-    // Desplegable de apartats
-    function actualitzarDropdownApartats() {
-        const dropdown = document.getElementById('apartatsDropdown');
-        if (!dropdown) return;
-        dropdown.innerHTML = '<option value="">Ves a un apartat...</option>';
-        const seccioActiva = document.querySelector('.seccio.active');
-        if (!seccioActiva) return;
-        const titols = seccioActiva.querySelectorAll('h2');
-        titols.forEach(function(titol, idx) {
-            const txt = titol.textContent.trim();
-            const opt = document.createElement('option');
-            opt.value = idx;
-            opt.textContent = txt;
-            dropdown.appendChild(opt);
-        });
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-        actualitzarDropdownApartats();
-        document.querySelectorAll('.dropdown a').forEach(function(a) {
-            a.addEventListener('click', function() {
-                setTimeout(actualitzarDropdownApartats, 200);
-            });
-        });
-        const dropdown = document.getElementById('apartatsDropdown');
-        dropdown.addEventListener('change', function() {
+    // Afegit/Modificat: script que sincronitza dropdown, mostrarSeccio i pager
+    (function(){
+        // Llista d'identificadors de seccions en l'ordre que ja tenim al menú
+        const seccionsOrdre = ['inici','economia','tramits','habitatge','feina','drets','info-extra'];
+
+        function actualitzarDropdownApartats() {
+            const dropdown = document.getElementById('apartatsDropdown');
+            if (!dropdown) return;
+            dropdown.innerHTML = '<option value="">Ves a un apartat...</option>';
             const seccioActiva = document.querySelector('.seccio.active');
             if (!seccioActiva) return;
             const titols = seccioActiva.querySelectorAll('h2');
-            const idx = dropdown.value;
-            if (idx !== '' && titols[idx]) {
-                titols[idx].scrollIntoView({behavior: 'smooth', block: 'center'});
-                titols[idx].style.background = '#ffb347';
-                titols[idx].style.borderRadius = '8px';
-                setTimeout(function() {
-                    titols[idx].style.background = '';
-                    titols[idx].style.borderRadius = '';
-                }, 1800);
+            titols.forEach(function(titol, idx) {
+                const txt = titol.textContent.trim();
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = txt;
+                dropdown.appendChild(opt);
+            });
+        }
+
+        function mostrarSeccio(id) {
+            const seccions = document.querySelectorAll('.seccio');
+            seccions.forEach(sec => sec.classList.remove('active'));
+            const target = document.getElementById(id);
+            if (!target) return;
+            target.classList.add('active');
+            document.querySelectorAll('.dropdown a').forEach(a => a.classList.remove('active'));
+            const menuId = 'menu-' + id;
+            const menuItem = document.getElementById(menuId);
+            if (menuItem) menuItem.classList.add('active');
+            // Actualitza dropdown i pager
+            actualitzarDropdownApartats();
+            updatePager();
+            // scroll to top of content principal for new section
+            target.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+
+        // Pager controls
+        function getCurrentIndex() {
+            const active = document.querySelector('.seccio.active');
+            if (!active) return 0;
+            return seccionsOrdre.indexOf(active.id);
+        }
+        function updatePager() {
+            const idx = getCurrentIndex();
+            const prevBtn = document.getElementById('pager-prev');
+            const nextBtn = document.getElementById('pager-next');
+            const label = document.getElementById('pager-label');
+            if (idx <= 0) prevBtn.disabled = true; else prevBtn.disabled = false;
+            if (idx >= seccionsOrdre.length - 1) nextBtn.disabled = true; else nextBtn.disabled = false;
+            label.textContent = (seccionsOrdre[idx] && document.getElementById(seccionsOrdre[idx]) )
+                ? document.getElementById(seccionsOrdre[idx]).querySelector('header h1')?.textContent || seccionsOrdre[idx]
+                : '';
+        }
+        function goToIndex(idx) {
+            if (idx < 0 || idx >= seccionsOrdre.length) return;
+            mostrarSeccio(seccionsOrdre[idx]);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Connecta els enllaços del menú perquè també actualitzin el pager
+            document.querySelectorAll('.dropdown a').forEach(function(a) {
+                a.addEventListener('click', function() {
+                    // petita espera per animacions; mostrarSeccio ja actualitza pager
+                    setTimeout(function(){ actualitzarDropdownApartats(); updatePager(); }, 150);
+                });
+            });
+
+            // Dropdown d'apartats dins la capçalera superior
+            const dropdown = document.getElementById('apartatsDropdown');
+            dropdown.addEventListener('change', function() {
+                const seccioActiva = document.querySelector('.seccio.active');
+                if (!seccioActiva) return;
+                const titols = seccioActiva.querySelectorAll('h2');
+                const idx = dropdown.value;
+                if (idx !== '' && titols[idx]) {
+                    titols[idx].scrollIntoView({behavior: 'smooth', block: 'center'});
+                    titols[idx].style.background = '#ffb347';
+                    titols[idx].style.borderRadius = '8px';
+                    setTimeout(function() {
+                        titols[idx].style.background = '';
+                        titols[idx].style.borderRadius = '';
+                    }, 1800);
+                }
+            });
+
+            // Pager buttons
+            document.getElementById('pager-prev').addEventListener('click', function(){ goToIndex( getCurrentIndex() - 1 ); });
+            document.getElementById('pager-next').addEventListener('click', function(){ goToIndex( getCurrentIndex() + 1 ); });
+
+            // Tecles esquerra/dreta per navegar
+            document.addEventListener('keydown', function(e){
+                if (e.key === 'ArrowLeft') goToIndex( getCurrentIndex() - 1 );
+                if (e.key === 'ArrowRight') goToIndex( getCurrentIndex() + 1 );
+            });
+
+            // Inicialitza estats
+            actualitzarDropdownApartats();
+            // marca Inici com a actiu si no hi ha cap altra
+            if (!document.querySelector('.seccio.active')) {
+                mostrarSeccio('inici');
+            } else {
+                // assegura que el menú tingui l'enllaç actiu
+                const act = document.querySelector('.seccio.active');
+                if (act) {
+                    const mid = 'menu-' + act.id;
+                    const m = document.getElementById(mid);
+                    if (m) m.classList.add('active');
+                }
             }
+            updatePager();
         });
-    });
-    function mostrarSeccio(id) {
-        const seccions = document.querySelectorAll('.seccio');
-        seccions.forEach(sec => sec.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.dropdown a').forEach(a => a.classList.remove('active'));
-        const menuId = 'menu-' + id;
-        const menuItem = document.getElementById(menuId);
-        if (menuItem) menuItem.classList.add('active');
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('menu-inici').classList.add('active');
-    });
+    })();
     </script>
 </body>
 </html>
-
