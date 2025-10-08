@@ -946,9 +946,12 @@
             // Actualitza dropdown i pager
             actualitzarDropdownApartats();
             updatePager();
-            // scroll to top of content principal for new section
-            target.scrollIntoView({behavior:'smooth', block:'start'});
+            // Desplaça cap amunt de la pàgina
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
+        
+        // Fa la funció mostrarSeccio accessible globalment per als onclick
+        window.mostrarSeccio = mostrarSeccio;
 
         // Pager controls
         function getCurrentIndex() {
@@ -956,17 +959,23 @@
             if (!active) return 0;
             return seccionsOrdre.indexOf(active.id);
         }
+        
         function updatePager() {
             const idx = getCurrentIndex();
             const prevBtn = document.getElementById('pager-prev');
             const nextBtn = document.getElementById('pager-next');
             const label = document.getElementById('pager-label');
+            
             if (idx <= 0) prevBtn.disabled = true; else prevBtn.disabled = false;
             if (idx >= seccionsOrdre.length - 1) nextBtn.disabled = true; else nextBtn.disabled = false;
-            label.textContent = (seccionsOrdre[idx] && document.getElementById(seccionsOrdre[idx]) )
-                ? document.getElementById(seccionsOrdre[idx]).querySelector('header h1')?.textContent || seccionsOrdre[idx]
-                : '';
+            
+            if (label) {
+                label.textContent = (seccionsOrdre[idx] && document.getElementById(seccionsOrdre[idx]) )
+                    ? document.getElementById(seccionsOrdre[idx]).querySelector('header h1')?.textContent || seccionsOrdre[idx]
+                    : '';
+            }
         }
+        
         function goToIndex(idx) {
             if (idx < 0 || idx >= seccionsOrdre.length) return;
             mostrarSeccio(seccionsOrdre[idx]);
